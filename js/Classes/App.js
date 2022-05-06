@@ -1,14 +1,15 @@
 import {petInput, ownerInput, telInput, 
     dateInput, hourInput, symptomInput, form} from "../variables.js";
 
-import { appointmentInfo, newAppointment } from "../functions.js";
+import { appointmentInfo, newAppointment, createDB} from "../functions.js";
 
 class App {
     constructor(){
         this.initApp();
+        this.createDB();
     }
 
-    initApp(){
+    initApp() {
         petInput.addEventListener("input", appointmentInfo);
         ownerInput.addEventListener("input", appointmentInfo);
         telInput.addEventListener("input", appointmentInfo);
@@ -18,6 +19,10 @@ class App {
     
         form.addEventListener("submit", newAppointment);
     };
+
+    createDB(){
+        createDB();
+    }
 };
 
 export default App;

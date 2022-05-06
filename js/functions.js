@@ -21,6 +21,9 @@ const appointmentObj = {
 //editing boolean
 let editing;
 
+//database
+let DB;
+
 //functions
 //add info to the appointment object
 export function appointmentInfo(e) {
@@ -117,4 +120,41 @@ export function editAppointment(appointment) {
 
     editing = true;
     
+}
+
+export function createDB() {
+    //we create the database
+    const createDB = window.indexedDB.open("AppointmentsDB", 1.0);
+
+
+    //if there is and error
+    createDB.onerror = () => console.log("ERROR creating DB!");
+
+    //if it is success
+    createDB.onsuccess = () => {
+        console.log("DB created successful!");
+        DB = createDB.result;
+    }
+
+    //define schema
+    createDB.onupgradeneeded = (e) => {
+        let db = e.target.result;
+        let objectStore = db.createObjectStore('AppointmentsTable', { keyPath: 'id',  autoIncrement: true } );
+        
+        //we define all the columns
+        objectStore.createIndex('Pet', 'pet', { unique: false } );
+        objectStore.createIndex('Owner', 'owner', { unique: true } );
+        objectStore.createIndex('Tel', 'tel', { unique: false } );
+        objectStore.createIndex('Date', 'date', { unique: false } );
+        objectStore.createIndex('Hour', 'hour', { unique: false } );
+        objectStore.createIndex('Symptom', 'symptom', { unique: false } );
+        objectStore.createIndex('Id', 'id', { unique: true } );
+
+        console.log("Tabla creada!")
+
+
+
+
+
+    }
 }
