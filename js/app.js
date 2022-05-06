@@ -30,8 +30,8 @@ class Appointment {
         this.appointments = this.appointments.filter( (appointment) => appointment.id != id);
     }
 
-    editAppointment(appointmentObj){
-        
+    editAppointment(appointmentUpdated){
+        this.appointments = this.appointments.map( appointment => appointment.id === appointmentUpdated.id ? appointmentUpdated : appointment);
     }
 };
 
@@ -178,15 +178,22 @@ function newAppointment(e) {
     e.preventDefault();
 
     const {pet, owner, tel, date, hour, symptom} = appointmentObj;
-    // if (!pet || !owner || !tel || !date || !hour || !symptom){
-    //     ui.printAlert("All fields are required!!", "error");
-    //     return;
-    // }
+    if (!pet || !owner || !tel || !date || !hour || !symptom){
+        ui.printAlert("All fields are required!!", "error");
+        return;
+    }
 
 
     if(editing){
         ui.printAlert("Edited succesful");
+
+        //pass the object to the editing appointment
+        adminAppointment.editAppointment({...appointmentObj});
+
+
+        //change the button text to original
         btnMake.textContent = "Create new Appointment";
+
         editing = false;
     } else {
        ui.printAlert("Appointment created!!!")
@@ -243,13 +250,13 @@ function editAppointment(appointment) {
     symptomInput.value = symptom;
 
     //fill the object with the edited info
-    appointment.pet = pet;
-    appointment.owner = owner;
-    appointment.tel = tel;
-    appointment.date = date;
-    appointment.hour = hour;
-    appointment.symptom = symptom;
-    appointment.id = id;
+    appointmentObj.pet = pet;
+    appointmentObj.owner = owner;
+    appointmentObj.tel = tel;
+    appointmentObj.date = date;
+    appointmentObj.hour = hour;
+    appointmentObj.symptom = symptom;
+    appointmentObj.id = id;
 
     //change button text
     btnMake.textContent = "Save changes";
