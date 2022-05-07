@@ -18,6 +18,7 @@ class App {
         symptomInput.addEventListener("input", appointmentInfo);
     
         form.addEventListener("submit", newAppointment);
+        
     };
 
     createDB(){

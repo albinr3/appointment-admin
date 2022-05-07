@@ -28,6 +28,7 @@ let DB;
 //add info to the appointment object
 export function appointmentInfo(e) {
     appointmentObj[e.target.name] = e.target.value;
+    
 };
 
 //Validate and add a new appointment to the appointment class
@@ -40,8 +41,9 @@ export function newAppointment(e) {
         return;
     }
 
-
+    
     if(editing){
+        //editing appointment
         ui.printAlert("Edited succesful");
 
         //pass the object to the editing appointment
@@ -53,13 +55,30 @@ export function newAppointment(e) {
 
         editing = false;
     } else {
-       ui.printAlert("Appointment created!!!")
+       
 
         // add a new unique id
         appointmentObj.id = Date.now();
 
         //we add a new appointment to the appointment class
         adminAppointment.addAppointment({...appointmentObj}); //we use spread operation to avoid duplicate the same object so we clone the object.
+
+        //we add the new appointment to the DB
+        const transaction = DB.transaction(["AppointmentsTable"], "readwrite");
+
+        // allow objectstore
+        const objectStore = transaction.objectStore("AppointmentsTable");
+
+        //insert to the database
+        objectStore.add(appointmentObj);
+        
+        console.log(appointmentObj);
+        transaction.oncomplete = () => {
+            console.log("La cita de guardo correctamente!");
+           
+             //new appointment
+            ui.printAlert("Appointment created!!!")
+         };
     }
 
     
