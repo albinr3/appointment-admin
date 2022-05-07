@@ -22,7 +22,7 @@ const appointmentObj = {
 let editing;
 
 //database
-let DB;
+export let DB;
 
 //functions
 //add info to the appointment object
@@ -49,11 +49,24 @@ export function newAppointment(e) {
         //pass the object to the editing appointment
         adminAppointment.editAppointment({...appointmentObj});
 
+        //edit the appointment on the DB
+        const transaction = DB.transaction("AppointmentsTable", "readwrite");
+        const objectStore = transaction.objectStore("AppointmentsTable");
+        objectStore.put(appointmentObj);
 
-        //change the button text to original
-        btnMake.textContent = "Create new Appointment";
+        //on success
+        transaction.oncomplete = function() {
+            //change the button text to original
+            btnMake.textContent = "Create new Appointment";
+            console.log("debe cambiar el boton");
+            editing = false;
+        };
 
-        editing = false;
+        //on error
+        transaction.onerror = () => console.log("THERE WAS AN ERROR EDITING THE APPOINTMENT");
+
+
+        
     } else {
        
 
@@ -72,7 +85,7 @@ export function newAppointment(e) {
         //insert to the database
         objectStore.add(appointmentObj);
         
-        console.log(appointmentObj);
+        
         transaction.oncomplete = () => {
             console.log("La cita de guardo correctamente!");
            
@@ -88,7 +101,7 @@ export function newAppointment(e) {
     resetObj(appointmentObj);
 
     //show the appointments on the DOM
-    ui.showAppointmentsHTML(adminAppointment)
+    ui.showAppointmentsHTML()
 };
 
 //reset the object to the validation
@@ -103,14 +116,25 @@ export function resetObj(obj){
 
 export function deleteAppointment(id) {
 
-    //call the method
-    adminAppointment.deleteAppointment(id);
+    //this delete the appointment from the database
+    const transaction = DB.transaction("AppointmentsTable", "readwrite");
+    const objectStore = transaction.objectStore("AppointmentsTable");
+    objectStore.delete(id);
 
-    //show a message
-    ui.printAlert("Appointment deleted!!", "Success");
+    transaction.oncomplete = () => {
+        
+        //show a message
+        ui.printAlert("Appointment deleted!!", "Success");
 
-    //update HTML
-    ui.showAppointmentsHTML(adminAppointment);
+        //update HTML
+        ui.showAppointmentsHTML();
+    };
+
+    transaction.onerror = () => {
+        console.log("There was an error deleting the appointment!");
+    }
+
+    
 }
 
 export function editAppointment(appointment) {
@@ -153,6 +177,9 @@ export function createDB() {
     createDB.onsuccess = () => {
         console.log("DB created successful!");
         DB = createDB.result;
+
+        //show appointments when the DB is ready
+        ui.showAppointmentsHTML();
     }
 
     //define schema
@@ -170,10 +197,6 @@ export function createDB() {
         objectStore.createIndex('Id', 'id', { unique: true } );
 
         console.log("Tabla creada!")
-
-
-
-
 
     }
 }
